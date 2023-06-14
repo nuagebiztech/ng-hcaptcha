@@ -29,25 +29,24 @@ export function loadHCaptcha(
       return;
     }
 
-    // Create a trusted URL from your script URL
     let src = "https://hcaptcha.com/1/api.js?render=explicit";
 
     // Set language code
     if (languageCode) {
       src += `&hl=${languageCode}`;
     }
+
+    // Setup mock TemplateArray
     const stringArray = [src] as any;
     stringArray.raw = [src];
 
+    // Create a trusted URL from your script URL
     const trustedScriptURL = ɵɵtrustConstantResourceUrl(stringArray);
 
     // Create a script element
     const scriptElement = renderer.createElement("script");
 
     // Set the 'src' attribute of the script element to the trusted URL
-    // renderer.setAttribute(scriptElement, "src", trustedScriptURL);
-    console.log(trustedScriptURL);
-    console.log(scriptElement);
     scriptElement.src = trustedScriptURL;
     scriptElement.defer = true;
     scriptElement.async = true;
@@ -59,17 +58,5 @@ export function loadHCaptcha(
 
     // Append the script element to the document head
     renderer.appendChild(document.head, scriptElement);
-
-    // const script = document.createElement("script");
-    // const sanitizedSrc: any = sanitizer.bypassSecurityTrustUrl(src);
-    // script.src = sanitizedSrc.changingThisBreaksApplicationSecurity;
-    // script.async = true;
-    // script.defer = true;
-    // script.onerror = (e) => observer.error(e);
-    // script.onload = () => {
-    //   observer.next();
-    //   observer.complete();
-    // };
-    // document.head.appendChild(script);
   });
 }
