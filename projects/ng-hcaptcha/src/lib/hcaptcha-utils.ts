@@ -1,4 +1,9 @@
-import { Observable, Subscriber } from 'rxjs';
+import {
+  Renderer2,
+  ɵbypassSanitizationTrustUrl,
+  ɵɵtrustConstantResourceUrl,
+} from "@angular/core";
+import { Observable, Subscriber } from "rxjs";
 
 declare const window: any;
 
@@ -7,7 +12,10 @@ declare const window: any;
  * The script won't be loaded again if it has already been loaded.
  * Async and defer are set to prevent blocking the renderer while loading hCaptcha.
  */
-export function loadHCaptcha(languageCode?: string): Observable<void> {
+export function loadHCaptcha(
+  languageCode?: string,
+  renderer?: Renderer2
+): Observable<void> {
   return new Observable<void>((observer: Subscriber<void>) => {
     // No window object (ssr)
     if (!window) {
@@ -15,28 +23,53 @@ export function loadHCaptcha(languageCode?: string): Observable<void> {
     }
 
     // The hCaptcha script has already been loaded
-    if (typeof window.hcaptcha !== 'undefined') {
+    if (typeof window.hcaptcha !== "undefined") {
       observer.next();
       observer.complete();
       return;
     }
 
-    let src = 'https://hcaptcha.com/1/api.js?render=explicit';
+    // Create a trusted URL from your script URL
+    let src = "https://hcaptcha.com/1/api.js?render=explicit";
 
     // Set language code
     if (languageCode) {
       src += `&hl=${languageCode}`;
     }
+    const stringArray = [src] as any;
+    stringArray.raw = [src];
 
-    const script = document.createElement('script');
-    script.src = src;
-    script.async = true;
-    script.defer = true;
-    script.onerror = (e) => observer.error(e);
-    script.onload = () => {
+    const trustedScriptURL = ɵɵtrustConstantResourceUrl(stringArray);
+
+    // Create a script element
+    const scriptElement = renderer.createElement("script");
+
+    // Set the 'src' attribute of the script element to the trusted URL
+    // renderer.setAttribute(scriptElement, "src", trustedScriptURL);
+    console.log(trustedScriptURL);
+    console.log(scriptElement);
+    scriptElement.src = trustedScriptURL;
+    scriptElement.defer = true;
+    scriptElement.async = true;
+    scriptElement.onerror = (e) => observer.error(e);
+    scriptElement.onload = () => {
       observer.next();
       observer.complete();
     };
-    document.head.appendChild(script);
+
+    // Append the script element to the document head
+    renderer.appendChild(document.head, scriptElement);
+
+    // const script = document.createElement("script");
+    // const sanitizedSrc: any = sanitizer.bypassSecurityTrustUrl(src);
+    // script.src = sanitizedSrc.changingThisBreaksApplicationSecurity;
+    // script.async = true;
+    // script.defer = true;
+    // script.onerror = (e) => observer.error(e);
+    // script.onload = () => {
+    //   observer.next();
+    //   observer.complete();
+    // };
+    // document.head.appendChild(script);
   });
 }

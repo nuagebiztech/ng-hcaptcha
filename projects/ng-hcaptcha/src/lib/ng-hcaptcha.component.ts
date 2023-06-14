@@ -10,37 +10,39 @@ import {
   EventEmitter,
   forwardRef,
   PLATFORM_ID,
-  OnDestroy
-} from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { isPlatformBrowser, isPlatformServer } from '@angular/common';
-import { Subscription } from 'rxjs';
-import { CAPTCHA_CONFIG, CaptchaConfig } from './ng-hcaptcha-config';
-import { loadHCaptcha } from './hcaptcha-utils';
+  OnDestroy,
+  Renderer2,
+} from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { isPlatformBrowser, isPlatformServer } from "@angular/common";
+import { Subscription } from "rxjs";
+import { CAPTCHA_CONFIG, CaptchaConfig } from "./ng-hcaptcha-config";
+import { loadHCaptcha } from "./hcaptcha-utils";
 
 declare const window: any;
 
 @Component({
-  selector: 'ng-hcaptcha',
+  selector: "ng-hcaptcha",
   template: '<div #captcha class="h-captcha"></div>',
   styles: [],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => NgHcaptchaComponent),
-      multi: true
-    }
-  ]
+      multi: true,
+    },
+  ],
 })
-export class NgHcaptchaComponent implements OnInit, OnDestroy, ControlValueAccessor {
-
+export class NgHcaptchaComponent
+  implements OnInit, OnDestroy, ControlValueAccessor
+{
   @Input() siteKey: string;
   @Input() theme: string;
   @Input() size: string;
   @Input() tabIndex: number;
   @Input() languageCode: string;
 
-  @ViewChild('captcha', { static: true }) captcha: ElementRef;
+  @ViewChild("captcha", { static: true }) captcha: ElementRef;
 
   @Output() verify: EventEmitter<string> = new EventEmitter<string>();
   @Output() expired: EventEmitter<any> = new EventEmitter<any>();
@@ -53,13 +55,11 @@ export class NgHcaptchaComponent implements OnInit, OnDestroy, ControlValueAcces
   onChange: any = () => {};
   onTouched: any = () => {};
 
-
   constructor(
     @Inject(CAPTCHA_CONFIG) private config: CaptchaConfig,
     private zone: NgZone,
-    @Inject(PLATFORM_ID) private platformId
-  ) {}
-
+    @Inject(PLATFORM_ID) private platformId,
+    private renderer: Renderer2  ) {}
 
   // Initialization
 
@@ -74,26 +74,39 @@ export class NgHcaptchaComponent implements OnInit, OnDestroy, ControlValueAcces
       return;
     }
 
-    this.captcha$ = loadHCaptcha(this.languageCode).subscribe(
+    this.captcha$ = loadHCaptcha(this.languageCode,  this.renderer).subscribe(
       () => {
-        setTimeout((context) => {
-          // Configure hCaptcha
-          const options = {
-            sitekey: (context.siteKey || context.config.siteKey),
-            theme: context.theme,
-            size: context.size,
-            tabindex: context.tabIndex,
-            callback: (res) => { context.zone.run(() => context.onVerify(res)); },
-            'expired-callback': (res) => { context.zone.run(() => context.onExpired(res)); },
-            'error-callback': (err) => { context.zone.run(() => context.onError(err)); }
-          };
+        setTimeout(
+          (context) => {
+            // Configure hCaptcha
+            const options = {
+              sitekey: context.siteKey || context.config.siteKey,
+              theme: context.theme,
+              size: context.size,
+              tabindex: context.tabIndex,
+              callback: (res) => {
+                context.zone.run(() => context.onVerify(res));
+              },
+              "expired-callback": (res) => {
+                context.zone.run(() => context.onExpired(res));
+              },
+              "error-callback": (err) => {
+                context.zone.run(() => context.onError(err));
+              },
+            };
 
-          // Render hCaptcha using the defined options
-          context.widgetId = window.hcaptcha.render(context.captcha.nativeElement, options);
-        }, 50, this);
+            // Render hCaptcha using the defined options
+            context.widgetId = window.hcaptcha.render(
+              context.captcha.nativeElement,
+              options
+            );
+          },
+          50,
+          this
+        );
       },
       (error) => {
-        console.error('Failed to load hCaptcha script', error);
+        console.error("Failed to load hCaptcha script", error);
       }
     );
   }
@@ -137,7 +150,6 @@ export class NgHcaptchaComponent implements OnInit, OnDestroy, ControlValueAcces
     this.onChange(value);
     this.onTouched();
   }
-
 
   // Internal functions
 
