@@ -1,0 +1,50 @@
+{
+  "name": "ng-hcaptcha",
+  "version": "2.0.0",
+  "description": "hCaptcha Component for Angular",
+  "keywords": [
+    "hcaptcha",
+    "captcha",
+    "angular",
+    "verification"
+  ],
+  "bugs": {
+    "url": "https://github.com/leNicDev/ng-hcaptcha/issues"
+  },
+  "contributors": [
+    "leNicDev"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/leNicDev/ng-hcaptcha.git"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@angular/common": "^9.0.0 || ^10.0.0 || ^11.0.0 || ^12.0.0 || ^13.0.0 || ^14.0.0",
+    "@angular/core": "^9.0.0 || ^10.0.0 || ^11.0.0 || ^12.0.0 || ^13.0.0 || ^14.0.0",
+    "@angular/forms": "^9.0.0 || ^10.0.0 || ^11.0.0 || ^12.0.0 || ^13.0.0 || ^14.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.0.0"
+  },
+  "module": "fesm2015/ng-hcaptcha.mjs",
+  "es2020": "fesm2020/ng-hcaptcha.mjs",
+  "esm2020": "esm2020/ng-hcaptcha.mjs",
+  "fesm2020": "fesm2020/ng-hcaptcha.mjs",
+  "fesm2015": "fesm2015/ng-hcaptcha.mjs",
+  "typings": "index.d.ts",
+  "exports": {
+    "./package.json": {
+      "default": "./package.json"
+    },
+    ".": {
+      "types": "./index.d.ts",
+      "esm2020": "./esm2020/ng-hcaptcha.mjs",
+      "es2020": "./fesm2020/ng-hcaptcha.mjs",
+      "es2015": "./fesm2015/ng-hcaptcha.mjs",
+      "node": "./fesm2015/ng-hcaptcha.mjs",
+      "default": "./fesm2020/ng-hcaptcha.mjs"
+    }
+  },
+  "sideEffects": false
+}
